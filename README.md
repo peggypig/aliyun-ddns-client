@@ -30,4 +30,15 @@ DomainName=niubi.com<br>
 -ls 显示配置中域名现有的解析记录<br>
 
 
+### 关于交叉编译
+编译成Linux下可执行文件<br>
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
 
+编译成Linux下可执行文件<br>
+CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build
+
+编译成Linux下可执行文件<br>
+CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build
+
+
+详见【[https://javasgl.github.io/go-cross-complie/]】

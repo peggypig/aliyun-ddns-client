@@ -14,7 +14,7 @@ func PrintRecords(records []model.Record)  {
 	for index,record :=range records {
 		log.Println("==========记录",index+1,"==========")
 		log.Println("记录编号：\t",record.RecordId)
-		log.Println("记录值：\t\t",record.Value)
+		log.Println("记录值：\t",record.Value)
 		log.Println("记录类型：\t",record.Type)
 		log.Println("记录线路：\t",record.Line)
 		log.Println("记录主机：\t",record.RR)

@@ -14,7 +14,6 @@ ddns.conf
 *.com
 *.class
 *.dll
-*.exe
 *.o
 *.so
 # compression file
