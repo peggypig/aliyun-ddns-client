@@ -51,3 +51,9 @@ CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build
 
 
 详见【[https://javasgl.github.io/go-cross-complie/]】
+
+
+
+# BIG PS
+使用中如果有问题，邮件：zjhfyq@vip.qq.com<br>
+好用的话，你应该知道点击哪里，啊哈哈
