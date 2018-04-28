@@ -16,7 +16,12 @@ import (
 func UpdateRecord(urlAfterSignature string)string  {
 	result := ""
 	resp , err :=http.Get(urlAfterSignature)
-	defer  resp.Body.Close()
+	defer func() {
+		resp.Body.Close()
+		if err := recover();err != nil {
+			log.Println(err)
+		}
+	}()
 	if err != nil {
 		log.Println(err)
 	}else {
@@ -41,7 +46,12 @@ func UpdateRecord(urlAfterSignature string)string  {
 func GetRecordDesc(urlAfterSignature string)[]model.Record {
 	resp , err :=http.Get(urlAfterSignature)
 	records := []model.Record{}
-	defer  resp.Body.Close()
+	defer func() {
+		resp.Body.Close()
+		if err := recover();err != nil {
+			log.Println(err)
+		}
+	}()
 	if err != nil {
 		log.Println(err)
 	}else {
