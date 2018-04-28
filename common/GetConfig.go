@@ -12,12 +12,13 @@ import (
 	"aliyun-ddns-client/model"
 )
 
-var CycleTime int
-
+//必要的配置参数
 var AccessKeyId string
 var AccessKeySecret string
 var DomainName string
 
+//可选的参数
+var CycleTime int
 var RecordConfig model.Record
 
 
@@ -26,23 +27,28 @@ func init()  {
 	if err != nil {
 		panic("没有找到./ddns.conf的配置文件")
 	}else {
-		accessKeyMap,err  :=cf.GetSection("AccessKey")
+		must,err  :=cf.GetSection("Must")
 		if err != nil {
 			panic("没有AccessKey相关配置")
 		}else {
-			if value , ok :=  accessKeyMap["AccessKeyId"];ok {
+			if value , ok :=  must["AccessKeyId"];ok {
 				AccessKeyId=value
 			}else {
 				panic("没有AccessKeyId相关配置")
 			}
-			if value , ok := accessKeyMap["AccessKeySecret"];ok {
+			if value , ok := must["AccessKeySecret"];ok {
 				AccessKeySecret = value
 			}else {
 				panic("没有AccessKeySecret相关配置")
 			}
+			if value ,ok := must["DomainName"];ok {
+				DomainName = value
+			}else {
+				panic("Local下面缺少DomainName的配置")
+			}
 		}
 
-		paramMap , err := cf.GetSection("Param")
+		paramMap , err := cf.GetSection("Optional")
 		if err != nil {
 			log.Println("没有Param相关配置,将采用原始配置信息")
 		}else {
@@ -68,23 +74,12 @@ func init()  {
 			if value , ok := paramMap["Line"];ok {
 				RecordConfig.Line = value;
 			}
-		}
-		localConfigMap,err := cf.GetSection("Local")
-		if err != nil {
-			log.Println(err)
-		}else {
-
-			if value ,ok := localConfigMap["CycleTime"];ok {
+			if value ,ok := paramMap["CycleTime"];ok {
 				CycleTime, err  = strconv.Atoi(value)
 				if err != nil {
 					log.Println(err)
 					CycleTime = 300
 				}
-			}
-			if value ,ok := localConfigMap["DomainName"];ok {
-				DomainName = value
-			}else {
-				panic("Local下面缺少DomainName的配置")
 			}
 		}
 	}

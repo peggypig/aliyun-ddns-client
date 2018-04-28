@@ -13,7 +13,6 @@ import (
 	"aliyun-ddns-client/util"
 	"aliyun-ddns-client/model"
 	"time"
-	"strings"
 )
 
 
@@ -21,6 +20,7 @@ var records []model.Record
 
 var lastIp =""
 var nowIp = ""
+var dnsIp = ""
 
 func main() {
 	if len(os.Args)<=1 {
@@ -29,19 +29,15 @@ func main() {
 	}
 	args := os.Args[1:]
 	//获取当前出口IP
-	nowIp = util.GetIp()
+	nowIp = util.GetLocalIp()
+	lastIp = nowIp
 	log.Println("当前出口IP：",nowIp)
 	//获取解析
-	url := common.GetUrlAfterSignature(common.API_STRING,common.AccessKeySecret,common.GetDescribeDomainRecordsParams())
-	records = httpopt.GetRecordDesc(url)
-	if len(records)>0 {
-		lastIp = records[0].Value
-		log.Println("域名"+common.DomainName+"对应IP：",lastIp)
-	}
+	getDnsInfo()
+
 	start := false
 	for _ , arg := range args {
 		if arg == "-ls" {
-			//显示已经存在的解析
 			common.PrintRecords(records)
 		}
 		if arg =="--help" || arg == "-help" || arg == "--h" || arg =="-h" {
@@ -52,34 +48,56 @@ func main() {
 		}
 	}
 	if start {
-		log.Println("DDNS已经启动...")
-		for {
-			nowIp = util.GetIp()
-			if nowIp != lastIp {
-				log.Println("主机IP发生变化，修改域名解析记录")
-				for _,record := range records {
-					params := common.GetUpdateDomainRecordParams()
-					params["RecordId"]= record.RecordId
-					params["RR"]= record.RR
-					params["Type"]= record.Type
-					params["Value"]= nowIp
-					url := common.GetUrlAfterSignature(common.API_STRING,common.AccessKeySecret,params)
-					result := httpopt.UpdateRecord(url)
-					log.Println("主机记录RR：",record.RR,"的修改结果：",result)
-					if strings.Contains(result,"成功") {
-						lastIp = nowIp
-					}
-				}
-
-			}else {
-				log.Println("主机出口IP没有发生变化，不需要修改解析记录")
-			}
-			//睡眠
-			time.Sleep(time.Duration(int64(common.CycleTime))*time.Second)
-		}
+		startDDNS()
 	}
 }
 
+func startDDNS()  {
+	log.Println("DDNS已经启动...")
+	for {
+		getDnsInfo()
+		nowIp = util.GetLocalIp()
+		if nowIp != lastIp {
+			log.Println("主机IP:",nowIp,"发生变化，上次IP：",lastIp,"，修改域名解析记录")
+			updateDomainRecord()
+			lastIp = nowIp
+		}else if nowIp != dnsIp {
+			log.Println("主机IP:",nowIp,"和解析记录IP:",dnsIp,"不一致，修改域名解析记录")
+			updateDomainRecord()
+		}else {
+			log.Println("主机出口IP没有发生变化并且和DNS解析保持一致，不需要修改解析记录")
+		}
+		//睡眠
+		time.Sleep(time.Duration(int64(common.CycleTime))*time.Second)
+	}
+}
+
+func updateDomainRecord()  {
+	for _,record := range records {
+		params := common.GetUpdateDomainRecordParams()
+		params["RecordId"]= record.RecordId
+		params["RR"]= record.RR
+		params["Type"]= record.Type
+		params["Value"]= nowIp
+		url := common.GetUrlAfterSignature(common.API_STRING,common.AccessKeySecret,params)
+		result := httpopt.UpdateRecord(url)
+		log.Println("主机记录RR：",record.RR,"的修改结果：",result)
+	}
+}
+
+
+
+
+func getDnsInfo()  {
+	url := common.GetUrlAfterSignature(common.API_STRING,common.AccessKeySecret,common.GetDescribeDomainRecordsParams())
+	records = httpopt.GetRecordDesc(url)
+	if len(records)>0 {
+		dnsIp = records[0].Value
+		log.Println("域名"+common.DomainName+"对应IP：",dnsIp)
+	}else {
+		log.Println("没有解析记录，DDNS不会生效，前往阿里云DNS添加相关解析")
+	}
+}
 
 
 
