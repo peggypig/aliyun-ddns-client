@@ -1,9 +1,13 @@
 # aliyun-ddns-client
-go语言编写的阿里云的DDNS客户端，解决没有静态公网IP的痛点。<br>
-喜欢折腾的那些谁看到这里就应该知道这个项目的功能了。<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;go语言编写的阿里云的DDNS客户端，解决没有静态公网IP的痛点。<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;喜欢折腾的那些谁看到这里就应该知道这个项目的功能了。<br>
 
 ### 说明
-参数类信息详见阿里云云解析官网
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;参数类信息详见阿里云云解析官网<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;解析生效时间和TTL时间有关，免费的DNS的TTL为10分钟，也就是说这个DDNS的时效性可能并不高，<br>
+但是对于个人来说已经足够完美，嫌弃的同学，可以购买aliyun相关的服务来解决这个问题。<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;一般来说，最差的生效时间为下面设置检测时间加上TTL的10分钟，默认就是15分钟。
+
 
 
 
@@ -17,7 +21,7 @@ AccessKeySecret=testAccessKeySecret<br>
 DomainName=niubi.com<br>
 
 \[Optional\]<br>
-CycleTime=300<br>
+CycleTime=300 #时间单位是秒   <br>
 
 
 上面是推荐配置，当然，你可以根据【[https://help.aliyun.com/product/29697.html]】
