@@ -34,10 +34,20 @@ func main() {
 	//获取解析
 	url := common.GetUrlAfterSignature(common.API_STRING,common.AccessKeySecret,common.GetDescribeDomainRecordsParams())
 	records = httpopt.GetRecordDesc(url)
-	if len(records)>0 {
-		lastIp = records[0].Value
-		log.Println("域名"+common.DomainName+"对应IP：",lastIp)
+	if records == nil {
+		log.Println("未能获取到解析记录，检查网络")
+	}else {
+		if len(records)>0 {
+			for _,record := range records {
+				if record.Type =="A" {
+					lastIp = records[0].Value
+					log.Println("域名"+common.DomainName+"对应IP：",lastIp)
+					break
+				}
+			}
+		}
 	}
+
 	start := false
 	for _ , arg := range args {
 		if arg == "-ls" {
@@ -57,20 +67,26 @@ func main() {
 			nowIp = util.GetIp()
 			if nowIp != lastIp {
 				log.Println("主机IP发生变化，修改域名解析记录")
-				for _,record := range records {
-					params := common.GetUpdateDomainRecordParams()
-					params["RecordId"]= record.RecordId
-					params["RR"]= record.RR
-					params["Type"]= record.Type
-					params["Value"]= nowIp
-					url := common.GetUrlAfterSignature(common.API_STRING,common.AccessKeySecret,params)
-					result := httpopt.UpdateRecord(url)
-					log.Println("主机记录RR：",record.RR,"的修改结果：",result)
-					if strings.Contains(result,"成功") {
-						lastIp = nowIp
+				if records == nil {
+					records = httpopt.GetRecordDesc(url)
+				}
+				if records != nil {
+					for _,record := range records {
+						if record.Type != "CNAME" {
+							params := common.GetUpdateDomainRecordParams()
+							params["RecordId"]= record.RecordId
+							params["RR"]= record.RR
+							params["Type"]= record.Type
+							params["Value"]= nowIp
+							url := common.GetUrlAfterSignature(common.API_STRING,common.AccessKeySecret,params)
+							result := httpopt.UpdateRecord(url)
+							log.Println("主机记录RR：",record.RR,"的修改结果：",result)
+							if strings.Contains(result,"成功") {
+								lastIp = nowIp
+							}
+						}
 					}
 				}
-
 			}else {
 				log.Println("主机出口IP没有发生变化，不需要修改解析记录")
 			}
