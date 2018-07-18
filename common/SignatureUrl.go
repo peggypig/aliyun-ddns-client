@@ -7,7 +7,7 @@ package common
 
 import (
 	"github.com/Unknwon/com"
-	"ali-ddns-client/model"
+	"aliyun-ddns-client/model"
 	"aliyun-ddns-client/util"
 )
 
